@@ -5,13 +5,14 @@ defined('BASEPATH') or exit('No direct script access allowed');
 require APPPATH . 'libraries/REST_Controller.php';
 require APPPATH . 'libraries/Format.php';
 
-class ApiController extends REST_Controller {
+class UserController extends REST_Controller {
 
     public function __construct()
     {
         parent::__construct();
         $this->load->database();
         $this->load->model('facebook/UserModel');
+        $this->load->helper('url');
     }
 
     public function index_get(){
@@ -20,69 +21,71 @@ class ApiController extends REST_Controller {
         $this->response($result,200);
     }
 
-    // public function createUser_post(){
+    public function createUser_post(){
 
-    //     $user=new UserModel;
+        $user=new UserModel;
 
-    //     $json_data = json_decode($this->input->raw_input_stream, true);
+        $json_data = json_decode($this->input->raw_input_stream, true);
 
-    //     $data=[
-    //         'name'=>$this->input->post('name'),
-    //         'email'=>$this->input->post('email')
-    //     ];
+        $data=[
+            'first_name'=>$this->input->post('first_name'),
+            'last_name'=>$this->input->post('last_name'),
+            'dob'=>$this->input->post('dob'),
+            'gender'=>$this->input->post('gender'),
+            'mobile_or_email'=>$this->input->post('mobile_or_email'),
+            'password'=>$this->input->post('password'),
+        ];
 
-    //     $result=$user->insert_user($data);
+        $result=$user->insert_user($data);
 
-    //     if( $result>0){
-    //         $this->response([
-    //             'status'=>true,
-    //             'message'=>'User created'
-    //         ],REST_Controller::HTTP_OK);
-    //     }else{
-    //         $this->response([
-    //             'status'=>false,
-    //             'message'=>'Failed user created'
-    //         ],REST_Controller::HTTP_OK);
-    //     }
+        if( $result>0){
+            $this->response([
+                'status'=>true,
+                'message'=>'User created'
+            ],REST_Controller::HTTP_OK);
+        }else{
+            $this->response([
+                'status'=>false,
+                'message'=>'Failed user created'
+            ],REST_Controller::HTTP_OK);
+        }
         
-    // }
+    }
 
-    // public function findUser_get($id){
-    //     $user=new UserModel;
-    //     $result=$user->editUser($id);
-    //     $this->response($result,200);
-    // }
+    public function login_post(){
 
-    // public function updateUser_put($id) {
-        
-    //     $user=new UserModel;
-    //     $json_data = json_decode($this->input->raw_input_stream, true);
+        $this->load->model('UserModel');
 
-    //     $data = [
-    //         'name' => $this->put('name'),
-    //         'email' => $this->put('email')
-    //     ];
-    
-    //     $updated_result = $user->update_user($id, $data);
-    
-    //     if ($updated_result) {
-    //         $this->response([
-    //             'status' => true,
-    //             'message' => 'User updated.'
-    //         ], REST_Controller::HTTP_OK);
-    //     } else {
-    //         $this->response([
-    //             'status' => false,
-    //             'message' => 'Failed to update.'
-    //         ], REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
-    //     }
-    // }
-    
+        $email = $this->input->get_post('email');
+        $password = $this->input->get_post('password');
 
-    // public function deleteUser_delete($id){
+        if (!$email || !$password) {
+            $this->response([
+                'status' => false,
+                'message' => 'Input invalid'
+            ], REST_Controller::HTTP_OK);
+            return;
+        }
 
-    //     $user=new UserModel;
-    //     $result=$user->delete_user($id);
-    //     $this->response($result,200);
-    // }
+        $result = $this->UserModel->check_credentials($email, $password);
+
+        if ($result) {
+            $this->response([
+                'status' => true,
+                'message' => 'Login success',
+                'user' => [
+                    'id' => $result->id,
+                    'email' => $result->email,
+                    'name' => $result->name
+                ]
+            ], REST_Controller::HTTP_OK);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Login failed. Invalid credentials.'
+            ], REST_Controller::HTTP_OK);
+        }
+    }
+                        
 }
+

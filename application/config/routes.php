@@ -53,12 +53,11 @@ $route['default_controller'] = 'welcome';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
-$route['api/user']='api/ApiController/index';
 
-$route['api/user/store']='api/ApiController/createUser';
+//user related routes
+$route['user']='facebook/UserController/index';
+$route['user/store']='facebook/UserController/createUser';
+$route['user/login']='facebook/UserController/login';
 
-$route['api/user/edit/(:any)']='api/ApiController/findUser/$1';
-
-$route['api/user/update/(:any)']='api/ApiController/updateUser/$1';
-
-$route['api/user/delete/(:any)']='api/ApiController/deleteUser/$1';
+// $route['user/update/(:any)']='facebook/UserController/updateUser/$1';
+// $route['user/delete/(:any)']='facebook/UserController/deleteUser/$1';

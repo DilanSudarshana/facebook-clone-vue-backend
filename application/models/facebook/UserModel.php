@@ -12,7 +12,7 @@ class UserModel extends CI_Model
 
     public function get_user()
     {
-       $query=$this->db->get('');
+       $query=$this->db->get('users');
         return $query->result();
     }
 
@@ -21,20 +21,20 @@ class UserModel extends CI_Model
         return $this->db->insert('users',$data);
     }
 
-    public function editUser($id){
+    public function check_credentials($email, $password): mixed
+    {
+        $this->db->where('mobile_or_email', $email);
+        $query = $this->db->get('users');
 
-        $this->db->where('id',$id);
-        $query=$this->db->get('users');
-        return $query->row();
+        if ($query->num_rows() > 0) {
+            $user = $query->row();
+            
+            if (password_verify($password, $user->password)) {
+                return $user;
+            }
+        }
+        return null; 
     }
 
-    public function update_user($id,$data){
 
-        return $this->db->where('id', $id)->update('users', $data);
-    }
-
-    public function delete_user($id){
-        
-        return $this->db->where('id', $id)->delete('users');
-    }
 }
